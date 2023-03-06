@@ -31,7 +31,13 @@ class PostsController extends Controller
      */
     public function create() //get ruta - jer zelimo da prikazemo create form view
     {
+        $cateogories = Category::all();
+        $users = User::all();
 
+        return view('blog.create', [
+            'categories' => $cateogories,
+            'users' => $users
+        ]);
     }
 
     /**
@@ -42,7 +48,16 @@ class PostsController extends Controller
      */
     public function store(Request $request) //post ruta - jer saljemo post zahtev i create u bazu
     {
-        //
+        $noviPost = Post::create([
+            'title' => $request->title,
+            'excerpt' => $request->excerpt,
+            'body' => $request->body,
+            'slug' => $request->slug,
+            'user_id' => $request->user,
+            'category_id' => $request->category,        
+        ]);
+
+        return redirect('blog/' . $noviPost->id);
     }
 
     /**
@@ -53,7 +68,10 @@ class PostsController extends Controller
      */
     public function show($postid) //get ruta - jer prihvatamo podatke iz baze
     {
-
+        $post = Post::find($postid);
+        return view('blog.show', [
+            'post' => $post,
+        ]);
     }
 
     /**
@@ -64,7 +82,12 @@ class PostsController extends Controller
      */
     public function edit($postid) //get ruta - jer zelimo da prikazemo edit form view
     {
-
+        $post = Post::find($postid);
+        $categories = Category::all();
+        return view('blog.edit', [
+            'post' => $post,
+            'categories' => $categories
+        ]);
     }
 
     /**
@@ -74,9 +97,18 @@ class PostsController extends Controller
      * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Post $post) //put ruta - jer saljemo put zahtev i update u bazu
+    public function update(Request $request, $postid) //put ruta - jer saljemo put zahtev i update u bazu
     {
-        //
+        $post = Post::find($postid);
+
+        $post->update([
+            'title' => $request->title,
+            'excerpt' => $request->excerpt,
+            'body' => $request->body,
+            'category_id' => $request->category,        
+        ]);
+
+        return redirect('blog/' . $post->id);
     }
 
     /**
@@ -85,8 +117,12 @@ class PostsController extends Controller
      * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Post $post) //delete ruta - jer zelimo da obrisemo iz baze jedan red
+    public function destroy($postid) //delete ruta - jer zelimo da obrisemo iz baze jedan red
     {
-        //
+        $post = Post::find($postid);
+
+        $post->delete();
+
+        return redirect('/blog');
     }
 }
